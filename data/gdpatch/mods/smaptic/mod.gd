@@ -23,7 +23,6 @@ func _ready() -> void:
 		version_checker.is_mod_outdated(mod.version, func(outdated: bool, new_ver: String) -> void:
 			if outdated:
 				Log.say("sMaptic is not up to date")
-				print(new_ver)
 				menu.update = new_ver
 			else:
 				Log.say("sMaptic is up to date")

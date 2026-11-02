@@ -128,7 +128,6 @@ func open_levels() -> void:
 	panel.open()
 
 	# prompt user to update if a new version is available
-	print(update)
 	if update != "":
 		var update_notice := ConfirmationMenu.new(panel, false, true, 20, Vector2(500, 200)).build("A new version of sMaptic is available! (v%s)\nPlease download the latest release." % [update], "Download", "Later")
 		update_notice.header.visible = true
