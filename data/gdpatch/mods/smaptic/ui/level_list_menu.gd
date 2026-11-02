@@ -514,6 +514,7 @@ func _import_level() -> void:
 		dialog.current_dir = _prev_dir
 	else:
 		dialog.current_dir = OS.get_environment("USERPROFILE") if OS.has_feature("windows") else OS.get_environment("HOME")
+	var alert = AlertMenu.new(panel).build("File dialog is open in another window.")
 
 	# listeners for dialog signals
 	dialog.canceled.connect(func():
@@ -531,7 +532,6 @@ func _import_level() -> void:
 	)
 
 	# open dialog and retain exclusive focus until closed
-	var alert = AlertMenu.new(panel).build("File dialog is open in another window.")
 	dialog.popup_file_dialog()
 	alert.prompt()
 	alert.button_confirm.disabled = true
