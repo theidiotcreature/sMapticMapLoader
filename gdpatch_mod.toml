@@ -5,6 +5,7 @@ name = "sMaptic "
 version = "0.1.0"
 authors = ["theidiotcreature"]
 description = "Import and loading tool for custom SNAPTIC maps"
+website = "https://sMaptic.github.io"
 
 [snapticbase]
 dependencies = [
