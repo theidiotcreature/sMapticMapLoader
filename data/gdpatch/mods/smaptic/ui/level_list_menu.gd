@@ -13,6 +13,7 @@ const PlayButton := preload("res://levels/menu_screen_background/prefabs/click_b
 
 const MAP_INDEX := "https://smaptic.github.io/mapindex"
 const LATEST := "https://github.com/repos/theidiotcreature/smapticmaploader/releases/latest"
+const PANEL_SIZE := Vector2(600, 400)
 
 enum ContextActions {
 	BACK,
@@ -48,7 +49,7 @@ func _init():
 func open_levels() -> void:
 	# construct panel if it hasn't been yet
 	if !panel:
-		panel = SnapticBase.create_panel("Custom Maps", Vector2(600, 400))
+		panel = SnapticBase.create_panel("Custom Maps", PANEL_SIZE)
 		vanilla_tab = panel.add_tab("Vanilla Maps")
 		vanilla_tab.add_child(VanillaLevelMenu.new())
 		_tab_bar = vanilla_tab.get_parent().get_tab_bar()
@@ -311,17 +312,19 @@ func _create_level_card(level : Dictionary) -> PanelContainer:
 	row.add_child(details)
 
 	var heading := HBoxContainer.new()
+	heading.size_flags_horizontal = SIZE_EXPAND_FILL
 	heading.add_theme_constant_override("separation", 8)
 	details.add_child(heading)
 
 	var name_label := Label.new()
 	name_label.text = str(level.get("name", "Unnamed level"))
 	name_label.add_theme_font_size_override("font_size", 18)
+	name_label.size_flags_horizontal = SIZE_SHRINK_BEGIN
 	heading.add_child(name_label)
 
 	var metadata_label := Label.new()
 	metadata_label.text = "(%s) v%s by %s" % [str(LevelScanner.get_id(level["id"]).to_lower()), str(level.get("version", "Unknown")), format_authors(level)]
-	metadata_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	metadata_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS_FORCE
 	metadata_label.add_theme_font_size_override("font_size", 12)
 	metadata_label.add_theme_color_override("font_color", Color(0.75, 0.75, 0.75))
 	metadata_label.size_flags_vertical = SIZE_SHRINK_CENTER
@@ -330,9 +333,10 @@ func _create_level_card(level : Dictionary) -> PanelContainer:
 
 	var description_label := Label.new()
 	description_label.text = str(level.get("description", "No description provided."))
-	description_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	description_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS_FORCE
 	description_label.add_theme_font_size_override("font_size", 13)
 	description_label.add_theme_color_override("font_color", Color(0.875, 0.875, 0.875))
+	description_label.size_flags_horizontal = SIZE_EXPAND_FILL
 	details.add_child(description_label)
 
 	# buttons container
