@@ -23,6 +23,7 @@ enum ContextActions {
 
 var panel : Panel
 var vanilla_tab : MarginContainer
+var update : String = ""
 var _tab_bar : TabBar
 var _level_list : VBoxContainer
 var _header : BoxContainer
@@ -44,7 +45,7 @@ func _init():
 	load_packs(LevelScanner.scan_level_directory())
 
 
-func open_levels(update : String) -> void:
+func open_levels() -> void:
 	# construct panel if it hasn't been yet
 	if !panel:
 		panel = SnapticBase.create_panel("Custom Maps", Vector2(600, 400))
@@ -127,6 +128,7 @@ func open_levels(update : String) -> void:
 	panel.open()
 
 	# prompt user to update if a new version is available
+	print(update)
 	if update != "":
 		var update_notice := ConfirmationMenu.new(panel, false, true, 20, Vector2(500, 200)).build("A new version of sMaptic is available! (v%s)\nPlease download the latest release." % [update], "Download", "Later")
 		update_notice.header.visible = true

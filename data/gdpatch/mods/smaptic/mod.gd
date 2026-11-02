@@ -9,7 +9,6 @@ const VersionChecker := preload("res://gdpatch/mods/smaptic/networking/version_c
 
 var menu : LevelListMenu
 var version_checker : VersionChecker
-var latest_version : String = ""
 
 func _ready() -> void:
 	ProjectSettings.set_setting("display/window/subwindows/embed_subwindows", false)
@@ -20,17 +19,20 @@ func _ready() -> void:
 	# check current version of mod against latest release and warn if outdated
 	version_checker = VersionChecker.new()
 	add_child(version_checker)
-	version_checker.is_mod_outdated(mod.version, func(outdated: bool, new_ver: String) -> void:
-		if outdated:
-			Log.say("sMaptic is not up to date")
-			latest_version = new_ver
-		else:
-			Log.say("sMaptic is up to date")
+	version_checker.release_fetched.connect(func() -> void:
+		version_checker.is_mod_outdated(mod.version, func(outdated: bool, new_ver: String) -> void:
+			if outdated:
+				Log.say("sMaptic is not up to date")
+				print(new_ver)
+				menu.update = new_ver
+			else:
+				Log.say("sMaptic is up to date")
+		)
 	)
 
 	# add map button to main menu
 	menu = LevelListMenu.new()
-	SnapticBase.add_menu_button("Maps", menu.open_levels.bind(latest_version))
+	SnapticBase.add_menu_button("Maps", menu.open_levels)
 
 	# listen for file drop events
 	get_viewport().files_dropped.connect(_on_files_dropped)

@@ -8,7 +8,8 @@ const TIMEOUT := 5.0
 const MAX_BYTES := 1048576
 
 var latest_version : String = ""
-var _release_done := false
+
+signal release_fetched
 
 # ripped a bit of this from multiplayer, thanks mia! (again x2)
 func _ready() -> void:
@@ -17,9 +18,8 @@ func _ready() -> void:
 
 # compares versions and runs callable with results as args
 func is_mod_outdated(version: String, callback: Callable) -> void:
-	if _release_done:
-		callback.call(_is_outdated(version), latest_version)
-		return
+	callback.call(_is_outdated(version), latest_version)
+	return
 
 
 func _is_outdated(version: String) -> bool:
@@ -38,13 +38,12 @@ func _fetch(url: String, headers: PackedStringArray) -> void:
 		if result != HTTPRequest.RESULT_SUCCESS or code != 200:
 			Log.say("Couldn't fetch %s (result %d, http %d)" % [url, result, code])
 			return
-		
-		var data = JSON.parse_string(body.get_string_from_utf8())
-		_release_done = true
 
+		var data = JSON.parse_string(body.get_string_from_utf8())
 		if data is Dictionary and data.get("tag_name") is String:
 			latest_version = (data["tag_name"] as String).strip_edges()
 			Log.say("Latest release is %s" % latest_version)
+			release_fetched.emit()
 	)
 
 	var err := request.request(url, headers)
