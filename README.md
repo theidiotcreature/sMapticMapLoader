@@ -1,4 +1,4 @@
-# <img src="https://github.com/theidiotcreature/sMapticModLoader/blob/main/data/gdpatch/mods/smaptic/icon.png" alt="mod icon" width="40"/> sMaptic Map Loader
+# <img src="https://github.com/theidiotcreature/sMapticMapLoader/blob/main/data/gdpatch/mods/smaptic/icon.png" alt="mod icon" width="40"/> sMaptic Map Loader
 
 sMaptic is a map loader mod for SNAPTIC Demo! Visit the homepage [here!](https://sMaptic.github.io)
 
