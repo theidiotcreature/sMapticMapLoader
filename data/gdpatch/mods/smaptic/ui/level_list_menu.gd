@@ -12,7 +12,7 @@ const VanillaLevelMenu := preload("res://gdpatch/mods/smaptic/ui/vanilla_level_m
 const PlayButton := preload("res://levels/menu_screen_background/prefabs/click_button/click_button.gd")
 
 const MAP_INDEX := "https://smaptic.github.io/MapIndex"
-const LATEST := "https://github.com/repos/theidiotcreature/smapticmaploader/releases/latest"
+const LATEST := "https://github.com/theidiotcreature/sMapticMapLoader/releases/latest"
 const PANEL_SIZE := Vector2(600, 400)
 
 enum ContextActions {
