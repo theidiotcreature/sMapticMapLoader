@@ -2,7 +2,7 @@ id = "smaptic"
 
 [meta]
 name = "sMaptic "
-version = "0.1.0"
+version = "0.1.1"
 authors = ["theidiotcreature"]
 description = "Import and loading tool for custom SNAPTIC maps"
 website = "https://sMaptic.github.io"
