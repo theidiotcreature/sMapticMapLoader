@@ -6,7 +6,7 @@ This mod allows you to import maps in the form of .zip files that have been expo
 
 If you are a map developer who would like an in-depth tutorial on the sMaptic pipeline, or a mod developer who would like to expand on the systems of the mod, check out the [documentation.](https://sMaptic.github.io/Documentation)
 
-Join the [SNAPTIC Modding](https://discord.gg/PgfbejJ8D) discord server for an [installation guide!](https://discord.com/channels/1558715375506563072/1562130176710549516)
+Join the [SNAPTIC Modding](https://discord.gg/PgfbejJ8D) discord server for an [installation guide!](https://discord.com/channels/1558715375506563072/1566964824003452999)
 
 ### Download:
 
