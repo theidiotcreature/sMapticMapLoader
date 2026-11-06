@@ -413,28 +413,50 @@ func _create_context_menu(more_button : Button, level : Dictionary) -> void:
 				var popup = SnapticBase.create_panel("Details", Vector2(500, 350))
 				popup.add_back()
 
+				var container = VBoxContainer.new()
+				popup.content.add_child(container)
+
+				var upper = HBoxContainer.new()
+				container.add_child(upper)
+
 				var info = Label.new()
-				# scene path uses a non-breaking space to keep as much of the path on one line as possible
-				info.text = "Name: %s\nID: %s\nVersion: %s\nAuthors: %s\nDescription: %s\nScene path: %s\nFile name: %s\nFile size: %s" % [
+				info.text = "Name: %s\nID: %s\nVersion: %s\nAuthors: %s" % [
 					str(level.get("name", "Unnamed level")),
 					str(level["id"]),
 					str(level.get("version", "Unknown")),
-					format_authors(level),
-					str(level.get("description", "No description provided.")),
-					str(level["scene"]),
-					str(level["path"]).get_file(),
-					format_bytes(FileAccess.open(level["path"], FileAccess.READ).get_length())
+					format_authors(level)
 				]
 				info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-				info.size_flags_vertical = SIZE_EXPAND_FILL
 				info.size_flags_horizontal = SIZE_EXPAND_FILL
 				info.add_theme_font_size_override("font_size", 18)
-				popup.content.add_child(info)
+				upper.add_child(info)
 
 				var level_icon := _create_level_icon(level, 96, 3)
 				level_icon.size_flags_horizontal = SIZE_SHRINK_END
 				level_icon.size_flags_vertical = SIZE_SHRINK_BEGIN
-				popup.content.add_child(level_icon)
+				upper.add_child(level_icon)
+
+				var description = Label.new()
+				description.text = "Description: %s" % [
+					str(level.get("description", "No description provided."))
+				]
+				description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				description.size_flags_vertical = SIZE_SHRINK_BEGIN
+				description.size_flags_horizontal = SIZE_EXPAND_FILL
+				description.add_theme_font_size_override("font_size", 18)
+				container.add_child(description)
+
+				var file_info = Label.new()
+				file_info.text = "Scene path: %s\nFile name: %s\nFile size: %s" % [
+					str(level["scene"]),
+					str(level["path"]).get_file(),
+					format_bytes(FileAccess.open(level["path"], FileAccess.READ).get_length())
+				]
+				file_info.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
+				file_info.size_flags_vertical = SIZE_SHRINK_BEGIN
+				file_info.size_flags_horizontal = SIZE_EXPAND_FILL
+				file_info.add_theme_font_size_override("font_size", 18)
+				container.add_child(file_info)
 
 				popup.open()
 
