@@ -6,6 +6,7 @@ const AlertMenu := preload("res://gdpatch/mods/smaptic/ui/alert_menu.gd")
 const ConfirmationMenu := preload("res://gdpatch/mods/smaptic/ui/confirmation_menu.gd")
 const LevelListMenu := preload("res://gdpatch/mods/smaptic/ui/level_list_menu.gd")
 
+const REMOVE_WHITELIST : Array = ["user://custom_levels"]
 
 static func file_size(path : String) -> int:
 	return FileAccess.open(path, FileAccess.READ).get_length()
@@ -161,8 +162,7 @@ static func _folder_zip_recursive(from : String, to : String, packer : ZIPPacker
 static func remove_file(path : String) -> void:
 	# attempt to delete folder/file
 	var state : Error = DirAccess.get_open_error()
-	var whitelist : String = "user://custom_levels"
-	if whitelist in path:
+	if REMOVE_WHITELIST.filter(func(item) -> bool: return item in path).size() > 0:
 		if FileAccess.file_exists(path) and path.get_file() != "active_ids.json":
 			Log.debug("Attempting to remove file \"%s\"" % [path.get_file()])
 			state = DirAccess.remove_absolute(path)
@@ -179,7 +179,7 @@ static func remove_file(path : String) -> void:
 		else:
 			Log.error("Failed to remove file/folder \"%s\": %s" % [path.get_file(), error_string(state)])
 	else:
-		Log.error("File/folder \"%s\" requested for removal is not within whitelisted directory \"%s\"" % [path.get_file(), whitelist])
+		Log.error("File/folder \"%s\" requested for removal is not within whitelisted directories: %s" % [path.get_file(), REMOVE_WHITELIST])
 
 
 static func _folder_delete_recursive(path : String) -> Error:
