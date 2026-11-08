@@ -156,7 +156,7 @@ static func add_spacer(base : Control, vertical : bool = false) -> void:
 
 # allows other classes to check if panel is recieving input
 func is_panel_active() -> bool:
-	return is_equal_approx(panel.modulate.a, 1.0) and _tab_bar.focus_mode != FocusMode.FOCUS_NONE
+	return is_equal_approx(panel.modulate.a, 1.0) and _tab_bar.focus_mode != FocusMode.FOCUS_NONE and _tab_bar.current_tab == 0
 
 	
 func refresh_levels() -> void:
