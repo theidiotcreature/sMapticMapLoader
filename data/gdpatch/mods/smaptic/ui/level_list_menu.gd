@@ -459,6 +459,10 @@ func _create_context_menu(more_button : Button, level : Dictionary) -> void:
 				container.add_child(file_info)
 
 				popup.open()
+				FocusTools.save_focus_modes(panel, _focus_modes)
+				panel.propagate_call("set_focus_mode", [FocusMode.FOCUS_NONE])
+				await popup.hidden
+				FocusTools.set_focus_modes(_focus_modes)
 
 			ContextActions.DELETE:
 				var confirm = ConfirmationMenu.new(panel).build("Are you sure you want to delete this map?\n(Cannot be undone!)", "Delete")
