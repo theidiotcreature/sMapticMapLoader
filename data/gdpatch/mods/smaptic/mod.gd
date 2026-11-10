@@ -8,7 +8,6 @@ const LevelListMenu := preload("res://gdpatch/mods/smaptic/ui/level_list_menu.gd
 const VersionChecker := preload("res://gdpatch/mods/smaptic/networking/version_checker.gd")
 
 var menu : LevelListMenu
-var version_checker : VersionChecker
 
 func _ready() -> void:
 	ProjectSettings.set_setting("display/window/subwindows/embed_subwindows", false)
@@ -17,10 +16,8 @@ func _ready() -> void:
 	var mod =SnapticBase.register("smaptic", get_script().resource_path.get_base_dir())
 
 	# check current version of mod against latest release and warn if outdated
-	version_checker = VersionChecker.new()
-	add_child(version_checker)
-	version_checker.release_fetched.connect(func() -> void:
-		version_checker.is_mod_outdated(mod.version, func(outdated: bool, new_ver: String) -> void:
+	VersionChecker.fetch_latest(self, func() -> void:
+		VersionChecker.is_mod_outdated(mod.version, func(outdated: bool, new_ver: String) -> void:
 			if outdated:
 				Log.say("sMaptic is not up to date")
 				menu.update = new_ver

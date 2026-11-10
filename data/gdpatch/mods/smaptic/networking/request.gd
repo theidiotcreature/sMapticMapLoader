@@ -5,11 +5,11 @@ const Log := preload("res://gdpatch/mods/smaptic/log.gd")
 const TIMEOUT := 5.0
 const MAX_BYTES := 1048576
 
-func _fetch(url: String, headers: PackedStringArray, callback: Callable) -> void:
+static func _fetch(parent: Node, url: String, headers: PackedStringArray, callback: Callable) -> void:
 	var request := HTTPRequest.new()
 	request.timeout = TIMEOUT
 	request.body_size_limit = MAX_BYTES
-	add_child(request)
+	parent.add_child(request)
 
 	request.request_completed.connect(func(result: int, code: int, _h: PackedStringArray, body: PackedByteArray) -> void:
 		request.queue_free()
