@@ -52,20 +52,22 @@ static func scan_level_directory(path : String = LEVELS_PATH, validation : bool 
 			if data != {}:
 				array.append(data)
 			else:
-				Log.warn("File \"%s\" did not pass validation. Removing..." % [file])
-				FileTools.remove_file(path.path_join(file))
-		elif file == "active_ids.json":
-			pass
+				_check_remove(path.path_join(file), "File \"%s\" did not pass validation. Removing..." % [file])
 		else:
-			Log.warn("File \"%s\" is not a valid format (.zip). Removing..." % [file])
-			FileTools.remove_file(path.path_join(file))
+			_check_remove(path.path_join(file), "File \"%s\" is not a valid format (.zip). Removing..." % [file])
 
 	# remove sub-directories
 	for dir in DirAccess.get_directories_at(path):
-		Log.warn("Folder \"%s\" is not a valid format (.zip). Removing..." % [dir])
-		FileTools.remove_file(path.path_join(dir))
+		_check_remove(path.path_join(dir), "Folder \"%s\" is not a valid format (.zip). Removing..." % [dir])
 
 	return array
+
+
+static func _check_remove(path : String, warning : String) -> void:
+	if not FileTools.remove_list_check(path, true):
+		Log.warn(warning)
+		FileTools.remove_file(path)
+
 
 static func scan_file(at : String, validation : bool = false) -> Dictionary:
 	var level_data : Dictionary

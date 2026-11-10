@@ -7,6 +7,7 @@ const ConfirmationMenu := preload("../ui/confirmation_menu.gd")
 const LevelListMenu := preload("../ui/level_list_menu.gd")
 
 const REMOVE_WHITELIST : Array = ["user://custom_levels"]
+const REMOVE_BLACKLIST : Array = ["active_ids.json"]
 
 static func file_size(path : String) -> int:
 	return FileAccess.open(path, FileAccess.READ).get_length()
@@ -159,27 +160,40 @@ static func _folder_zip_recursive(from : String, to : String, packer : ZIPPacker
 	return OK
 
 
+static func remove_list_check(path : String, hide_warnings : bool = false) -> bool:
+	if REMOVE_WHITELIST.filter(func(item) -> bool: return item in path).size() <= 0:
+		if not hide_warnings:
+			Log.error("File/folder \"%s\" requested for removal is not within whitelisted directories: %s" % [path.get_file(), REMOVE_WHITELIST])
+		return true
+	elif REMOVE_BLACKLIST.filter(func(item) -> bool: return item in path).size() > 0:
+		if not hide_warnings:
+			Log.error("File/folder \"%s\" requested for removal is within blacklisted files/folders: %s" % [path.get_file(), REMOVE_BLACKLIST])
+		return true
+	return false
+
+
 static func remove_file(path : String) -> void:
+	# check whitelist/blacklist before removal
+	if remove_list_check(path):
+		return
+	
 	# attempt to delete folder/file
 	var state : Error = DirAccess.get_open_error()
-	if REMOVE_WHITELIST.filter(func(item) -> bool: return item in path).size() > 0:
-		if FileAccess.file_exists(path) and path.get_file() != "active_ids.json":
-			Log.debug("Attempting to remove file \"%s\"" % [path.get_file()])
-			state = DirAccess.remove_absolute(path)
-		elif DirAccess.dir_exists_absolute(path):
-			Log.debug("Attempting to remove folder \"%s\"" % [path.get_file()])
-			state = _folder_delete_recursive(path)
-		else:
-			Log.warn("Selected file \"%s\" cannot be found or is not eligible for removal" % [path.get_file()])
-			state = Error.ERR_FILE_CANT_OPEN
-
-		# respond to return value
-		if state == OK:
-			Log.say("Removed file/folder \"%s\"" % [path.get_file()])
-		else:
-			Log.error("Failed to remove file/folder \"%s\": %s" % [path.get_file(), error_string(state)])
+	if FileAccess.file_exists(path):
+		Log.debug("Attempting to remove file \"%s\"" % [path.get_file()])
+		state = DirAccess.remove_absolute(path)
+	elif DirAccess.dir_exists_absolute(path):
+		Log.debug("Attempting to remove folder \"%s\"" % [path.get_file()])
+		state = _folder_delete_recursive(path)
 	else:
-		Log.error("File/folder \"%s\" requested for removal is not within whitelisted directories: %s" % [path.get_file(), REMOVE_WHITELIST])
+		Log.warn("Selected file \"%s\" cannot be found or is not eligible for removal" % [path.get_file()])
+		state = Error.ERR_FILE_CANT_OPEN
+
+	# respond to return value
+	if state == OK:
+		Log.say("Removed file/folder \"%s\"" % [path.get_file()])
+	else:
+		Log.error("Failed to remove file/folder \"%s\": %s" % [path.get_file(), error_string(state)])
 
 
 static func _folder_delete_recursive(path : String) -> Error:
