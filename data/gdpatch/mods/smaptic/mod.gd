@@ -3,6 +3,7 @@ extends Node
 const SnapticBase := preload("res://gdpatch/mods/snapticbase/mod.gd")
 const FileTools := preload("res://gdpatch/mods/smaptic/tools/file_tools.gd")
 const Log := preload("res://gdpatch/mods/smaptic/log.gd")
+const Settings := preload("res://gdpatch/mods/smaptic/ui/settings.gd")
 const AlertMenu := preload("res://gdpatch/mods/smaptic/ui/alert_menu.gd")
 const LevelListMenu := preload("res://gdpatch/mods/smaptic/ui/level_list_menu.gd")
 const VersionChecker := preload("res://gdpatch/mods/smaptic/networking/version_checker.gd")
@@ -14,7 +15,8 @@ func _ready() -> void:
 	ProjectSettings.set_setting("display/window/subwindows/embed_subwindows", false)
 	
 	# registers the mod with snapticbase coremod so it appears on the modlist
-	var mod =SnapticBase.register("smaptic", get_script().resource_path.get_base_dir())
+	var mod := SnapticBase.register("smaptic", get_script().resource_path.get_base_dir())
+	Settings.build(mod.id)
 
 	# check current version of mod against latest release and warn if outdated
 	version_checker = VersionChecker.new()

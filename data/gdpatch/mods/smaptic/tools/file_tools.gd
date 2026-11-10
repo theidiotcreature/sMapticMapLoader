@@ -1,6 +1,7 @@
 extends RefCounted
 
 const Log := preload("res://gdpatch/mods/smaptic/log.gd")
+const Settings := preload("res://gdpatch/mods/smaptic/ui/settings.gd")
 const LevelScanner := preload("res://gdpatch/mods/smaptic/tools/level_scanner.gd")
 const AlertMenu := preload("res://gdpatch/mods/smaptic/ui/alert_menu.gd")
 const ConfirmationMenu := preload("res://gdpatch/mods/smaptic/ui/confirmation_menu.gd")
@@ -49,15 +50,19 @@ static func batch_import_file(paths : PackedStringArray, menu : LevelListMenu, n
 	for level in imported_levels:
 		var match : int = existing_levels.map(func(item) -> String: return item["id"]).find(level["id"])
 		if match > -1:
-			alert.close()
-			alert = ConfirmationMenu.new(menu.panel, new_alert, false, 16).build("Imported map \"%s\" shares an ID with an existing map!\nReplace it?" % [level["path"].get_file()], "Replace")
-			new_alert = false
-			if await alert.prompt():
+			if Settings.store.get_bool("ignore_modify"):
 				temp_levels.append(level)
 				remove_file(existing_levels[match]["path"])
 			else:
-				Log.say("Imported map shares an ID with an existing map, import cancelled for file \"%s\" with ID \"%s\"" % [level["path"].get_file(), level["id"]])
-			alert = AlertMenu.new(menu.panel, false)
+				alert.close()
+				alert = ConfirmationMenu.new(menu.panel, new_alert, false, 16).build("Imported map \"%s\" shares an ID with an existing map!\nReplace it?" % [level["path"].get_file()], "Replace")
+				new_alert = false
+				if await alert.prompt():
+					temp_levels.append(level)
+					remove_file(existing_levels[match]["path"])
+				else:
+					Log.say("Imported map shares an ID with an existing map, import cancelled for file \"%s\" with ID \"%s\"" % [level["path"].get_file(), level["id"]])
+				alert = AlertMenu.new(menu.panel, false)
 		else:
 			temp_levels.append(level)
 	imported_levels = temp_levels
