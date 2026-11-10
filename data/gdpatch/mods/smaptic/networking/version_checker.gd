@@ -1,4 +1,4 @@
-extends "res://gdpatch/mods/smaptic/networking/request.gd"
+extends "request.gd"
 
 const SnapticBase := preload("res://gdpatch/mods/snapticbase/mod.gd")
 

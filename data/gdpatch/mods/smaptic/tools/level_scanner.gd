@@ -1,8 +1,8 @@
 extends RefCounted
 
 const Toml := preload("res://gdpatch/mods/snapticbase/toml.gd")
-const FileTools := preload("res://gdpatch/mods/smaptic/tools/file_tools.gd")
-const Log := preload("res://gdpatch/mods/smaptic/log.gd")
+const FileTools := preload("../tools/file_tools.gd")
+const Log := preload("../log.gd")
 
 const LEVELS_PATH = "user://custom_levels"
 const ID_FILE = "active_ids.json"

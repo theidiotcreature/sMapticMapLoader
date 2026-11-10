@@ -2,8 +2,8 @@ extends Control
 class_name AlertMenu
 
 const ClickButton := preload("res://levels/menu_screen_background/prefabs/click_button/click_button.gd")
-const LevelListMenu := preload("res://gdpatch/mods/smaptic/ui/level_list_menu.gd")
-const FocusTools := preload("res://gdpatch/mods/smaptic/tools/focus_tools.gd")
+const LevelListMenu := preload("../ui/level_list_menu.gd")
+const FocusTools := preload("../tools/focus_tools.gd")
 
 const THEME := "res://ui/_shared/themes/menu_screen_theme.tres"
 const BACK_GROUP := &"back_button"

@@ -1,11 +1,11 @@
 extends Node
 
 const SnapticBase := preload("res://gdpatch/mods/snapticbase/mod.gd")
-const FileTools := preload("res://gdpatch/mods/smaptic/tools/file_tools.gd")
-const Log := preload("res://gdpatch/mods/smaptic/log.gd")
-const AlertMenu := preload("res://gdpatch/mods/smaptic/ui/alert_menu.gd")
-const LevelListMenu := preload("res://gdpatch/mods/smaptic/ui/level_list_menu.gd")
-const VersionChecker := preload("res://gdpatch/mods/smaptic/networking/version_checker.gd")
+const FileTools := preload("tools/file_tools.gd")
+const Log := preload("log.gd")
+const AlertMenu := preload("ui/alert_menu.gd")
+const LevelListMenu := preload("ui/level_list_menu.gd")
+const VersionChecker := preload("networking/version_checker.gd")
 
 var menu : LevelListMenu
 

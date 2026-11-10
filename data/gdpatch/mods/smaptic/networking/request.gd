@@ -1,6 +1,6 @@
 extends Node
 
-const Log := preload("res://gdpatch/mods/smaptic/log.gd")
+const Log := preload("../log.gd")
 
 const TIMEOUT := 5.0
 const MAX_BYTES := 1048576

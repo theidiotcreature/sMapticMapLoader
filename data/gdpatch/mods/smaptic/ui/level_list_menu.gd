@@ -1,14 +1,14 @@
 extends Control
 
 const SnapticBase := preload("res://gdpatch/mods/snapticbase/mod.gd")
-const FileTools := preload("res://gdpatch/mods/smaptic/tools/file_tools.gd")
-const FocusTools := preload("res://gdpatch/mods/smaptic/tools/focus_tools.gd")
-const Log := preload("res://gdpatch/mods/smaptic/log.gd")
-const LevelScanner := preload("res://gdpatch/mods/smaptic/tools/level_scanner.gd")
-const ContextMenu := preload("res://gdpatch/mods/smaptic/ui/context_menu.gd")
-const AlertMenu := preload("res://gdpatch/mods/smaptic/ui/alert_menu.gd")
-const ConfirmationMenu := preload("res://gdpatch/mods/smaptic/ui/confirmation_menu.gd")
-const VanillaLevelMenu := preload("res://gdpatch/mods/smaptic/ui/vanilla_level_menu.gd")
+const FileTools := preload("../tools/file_tools.gd")
+const FocusTools := preload("../tools/focus_tools.gd")
+const Log := preload("../log.gd")
+const LevelScanner := preload("../tools/level_scanner.gd")
+const ContextMenu := preload("../ui/context_menu.gd")
+const AlertMenu := preload("../ui/alert_menu.gd")
+const ConfirmationMenu := preload("../ui/confirmation_menu.gd")
+const VanillaLevelMenu := preload("../ui/vanilla_level_menu.gd")
 const PlayButton := preload("res://levels/menu_screen_background/prefabs/click_button/click_button.gd")
 
 const MAP_INDEX := "https://smaptic.github.io/MapIndex"

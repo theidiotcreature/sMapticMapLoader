@@ -1,10 +1,10 @@
 extends RefCounted
 
-const Log := preload("res://gdpatch/mods/smaptic/log.gd")
-const LevelScanner := preload("res://gdpatch/mods/smaptic/tools/level_scanner.gd")
-const AlertMenu := preload("res://gdpatch/mods/smaptic/ui/alert_menu.gd")
-const ConfirmationMenu := preload("res://gdpatch/mods/smaptic/ui/confirmation_menu.gd")
-const LevelListMenu := preload("res://gdpatch/mods/smaptic/ui/level_list_menu.gd")
+const Log := preload("../log.gd")
+const LevelScanner := preload("../tools/level_scanner.gd")
+const AlertMenu := preload("../ui/alert_menu.gd")
+const ConfirmationMenu := preload("../ui/confirmation_menu.gd")
+const LevelListMenu := preload("../ui/level_list_menu.gd")
 
 const REMOVE_WHITELIST : Array = ["user://custom_levels"]
 
