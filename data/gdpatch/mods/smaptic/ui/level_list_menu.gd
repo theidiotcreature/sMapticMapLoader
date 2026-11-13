@@ -1,15 +1,14 @@
 extends Control
 
+const ClickButton := preload("res://levels/menu_screen_background/prefabs/click_button/click_button.gd")
 const SnapticBase := preload("res://gdpatch/mods/snapticbase/mod.gd")
 const FileTools := preload("../tools/file_tools.gd")
-const FocusTools := preload("../tools/focus_tools.gd")
 const Log := preload("../log.gd")
 const LevelScanner := preload("../tools/level_scanner.gd")
 const ContextMenu := preload("../ui/context_menu.gd")
 const AlertMenu := preload("../ui/alert_menu.gd")
 const ConfirmationMenu := preload("../ui/confirmation_menu.gd")
 const VanillaLevelMenu := preload("../ui/vanilla_level_menu.gd")
-const PlayButton := preload("res://levels/menu_screen_background/prefabs/click_button/click_button.gd")
 
 const MAP_INDEX := "https://smaptic.github.io/MapIndex"
 const LATEST := "https://github.com/theidiotcreature/sMapticMapLoader/releases/latest"
@@ -19,6 +18,7 @@ enum ContextActions {
 	BACK,
 	PIN,
 	INFO,
+	CLEAR_SAVE,
 	DELETE
 }
 
@@ -344,7 +344,7 @@ func _create_level_card(level : Dictionary) -> PanelContainer:
 	buttons.add_theme_constant_override("separation", 4)
 	row.add_child(buttons)
 
-	var play_button := PlayButton.new()
+	var play_button := ClickButton.new()
 	play_button.mouse_entered.connect(AudioManager.play_sound_effect.bind(SFX.Name.MENU_HOVER))
 	play_button.text = " Play "
 	play_button.size_flags_vertical = SIZE_SHRINK_CENTER
