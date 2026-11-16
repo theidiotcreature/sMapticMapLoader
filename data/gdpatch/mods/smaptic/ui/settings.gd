@@ -13,14 +13,23 @@ static func build(id : String) -> void:
 	_set_starting_level.call_deferred(store.get_string("starting_level"))
 
 	SnapticBase.add_settings_page(id, func(panel) -> void:
+		var popups : Array[PopupMenu] = []
 		var page = panel.add_tab("Settings")
 		page.add_toggle("Hide Modify Warnings", "ignore_modify")
 		_create_description(page, "Hides all warnings related to replacing and deleting maps.")
-		var level_dropdown : OptionButton = page.add_choice("Starting Level", "starting_level", LevelScanner.active_ids)
+		var level_dropdown : OptionButton = page.add_choice("Starting Level", "starting_level", LevelScanner.get_active_ids())
+		popups.append(level_dropdown.get_popup())
 		level_dropdown.item_selected.connect(func(id) -> void:
-			_set_starting_level(LevelScanner.active_ids[id])
+			_set_starting_level(LevelScanner.get_active_ids()[id])
 		)
 		_create_description(page, "Map that opens when \"Play\" is pressed on the main menu.")
+
+		for popup in popups:
+			popup.reparent(panel)
+			popup.max_size.y = 250
+			popup.focus_exited.connect(func() -> void:
+				popup.visible = false
+			)
 	)
 
 
