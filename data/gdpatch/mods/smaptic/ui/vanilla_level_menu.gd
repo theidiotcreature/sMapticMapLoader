@@ -1,11 +1,5 @@
 extends Control
 
-const VANILLA_LEVELS := [
-    "mirraxis",
-    "movement_playtest",
-    "test_room",
-]
-
 func _ready() -> void:
     # placeholder label until i get around to implementation
     var label := Label.new()

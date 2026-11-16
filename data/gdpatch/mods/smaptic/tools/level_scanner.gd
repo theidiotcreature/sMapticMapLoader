@@ -4,20 +4,27 @@ const Toml := preload("res://gdpatch/mods/snapticbase/toml.gd")
 const FileTools := preload("res://gdpatch/mods/smaptic/tools/file_tools.gd")
 const Log := preload("res://gdpatch/mods/smaptic/log.gd")
 
-const LEVELS_PATH = "user://custom_levels"
-const ID_FILE = "active_ids.json"
+const LEVELS_PATH := "user://custom_levels"
+const ID_FILE := "active_ids.json"
 const DEFAULT_ICON_PATH := "res://gdpatch/mods/smaptic/assets/default_icon.png"
+const BLACKLIST : Array[String] = [
+	"MENU_SCREEN_BACKGROUND",
+	"LOAD_TEST",
+	"GYM",
+	"VAPOR_GLADE",
+	"MAGNET_PUZZLES",
+]
+
+static var active_ids : Array[String]
 
 
-# UNUSED
-static func get_active_ids() -> Dictionary:
+static func _static_init() -> void:
 	# get the list of map ids from active_ids.json
 	var full_path = LEVELS_PATH.path_join(ID_FILE)
 	if FileAccess.file_exists(full_path) or DirAccess.open(full_path).store_string(""):
-		return JSON.parse_string(FileAccess.get_file_as_string(full_path))
+		active_ids = LevelLoader.LevelName.keys().filter(func(item) -> bool: return not item in BLACKLIST).map(func(item) -> String: return item.to_lower())
 	else:
 		Log.error("Could not create or find file \"%s\" at path \"%s\"" % [ID_FILE, LEVELS_PATH])
-		return {}
 
 
 static func set_active_ids(level_data : Array) -> void:
