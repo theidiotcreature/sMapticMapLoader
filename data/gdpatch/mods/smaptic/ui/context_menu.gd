@@ -2,7 +2,7 @@ extends PopupMenu
 
 const ANIMATION_DURATION := 0.125
 
-var _standard_font_size: int
+var _standard_font_size : int
 var _is_closing := false
 
 
