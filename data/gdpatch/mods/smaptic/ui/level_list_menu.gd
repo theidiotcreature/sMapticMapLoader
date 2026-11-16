@@ -391,20 +391,11 @@ func _create_context_menu(more_button : Button, level : Dictionary) -> void:
 	context_menu.add_item("More Info", ContextActions.INFO)
 	context_menu.add_item("Delete", ContextActions.DELETE)
 	panel.add_child(context_menu)
-	context_menu.set_focused_item(ContextActions.BACK)
-
-	# play entry anim
-	var standard_font_size := context_menu.get_theme_font_size("font_size")
-	context_menu.add_theme_font_size_override("font_size", 1)
-	context_menu.hide_on_item_selection = false
-	context_menu.popup(Rect2(more_button.get_global_position(), context_menu.min_size))
-	context_menu.create_tween().tween_property(context_menu, "theme_override_font_sizes/font_size", standard_font_size, 0.125).set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_OUT)
+	context_menu.open_at(more_button.get_global_position(), ContextActions.BACK)
 
 	# listen for selection and respond
 	context_menu.id_pressed.connect(func(id):
 		Log.debug("%s action triggered for level \"%s\"" % [ContextActions.keys()[id], str(level["id"])])
-		AudioManager.play_sound_effect(SFX.Name.MENU_SELECT)
-		_close_context_menu(context_menu, standard_font_size)
 		match id:
 			ContextActions.BACK:
 				pass
@@ -452,29 +443,6 @@ func _create_context_menu(more_button : Button, level : Dictionary) -> void:
 			_:
 				Log.warn("Unimplemented action id %s \"%s\"" % [id, ContextActions.keys()[id]])
 	)
-
-	# misc signal listeners
-	context_menu.id_focused.connect(func(id):
-		AudioManager.play_sound_effect(SFX.Name.MENU_HOVER)
-	)
-	context_menu.focus_exited.connect(func():
-		if context_menu.get_theme_font_size("font_size") > 1:
-			AudioManager.play_sound_effect(SFX.Name.MENU_SELECT)
-		_close_context_menu(context_menu, standard_font_size)
-	)
-	context_menu.closed.connect(func():
-		AudioManager.play_sound_effect(SFX.Name.MENU_SELECT)
-	)
-
-
-func _close_context_menu(menu : PopupMenu, font_size : int = menu.get_theme_font_size("font_size")) -> void:
-	# play exit anim and free node
-	menu.propagate_call("set_mouse_filter", [MOUSE_FILTER_IGNORE])
-	await menu.create_tween().tween_method((func(size): 
-		menu.add_theme_font_size_override("font_size", size)
-		menu.reset_size()
-	), font_size, 1, 0.125).set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_IN).finished
-	menu.queue_free()
 
 
 func format_authors(level : Dictionary) -> String:
