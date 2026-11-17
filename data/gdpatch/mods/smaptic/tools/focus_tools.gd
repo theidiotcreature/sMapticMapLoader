@@ -1,15 +1,17 @@
 extends RefCounted
 
 
-static func save_focus_modes(this : Control, modes : Dictionary) -> void:
+static func save_focus_modes(this : Control, modes : Dictionary, only_missing : bool = false) -> void:
 	# recursively save focus modes
-	modes[this] = this.focus_mode
+	if not only_missing or not modes.has(this):
+		modes[this] = this.focus_mode
 	if this is TabContainer:
 		var tab_bar = this.get_tab_bar()
-		modes[tab_bar] = tab_bar.focus_mode
+		if not only_missing or not modes.has(tab_bar):
+			modes[tab_bar] = tab_bar.focus_mode
 	for child in this.get_children():
 		if child is Control:
-			save_focus_modes(child, modes)
+			save_focus_modes(child, modes, only_missing)
 
 
 static func set_focus_modes(focus_modes : Dictionary):

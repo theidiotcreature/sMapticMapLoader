@@ -1,4 +1,4 @@
-extends "res://gdpatch/mods/smaptic/ui/alert_menu.gd"
+extends "alert_menu.gd"
 class_name ConfirmationMenu
 
 var button_cancel : ClickButton

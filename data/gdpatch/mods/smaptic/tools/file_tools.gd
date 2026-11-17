@@ -8,13 +8,14 @@ const ConfirmationMenu := preload("res://gdpatch/mods/smaptic/ui/confirmation_me
 const LevelListMenu := preload("res://gdpatch/mods/smaptic/ui/level_list_menu.gd")
 
 const REMOVE_WHITELIST : Array = ["user://custom_levels"]
+const REMOVE_BLACKLIST : Array = ["active_ids.json"]
 
 static func file_size(path : String) -> int:
 	return FileAccess.open(path, FileAccess.READ).get_length()
 
 
-static func batch_import_file(paths : PackedStringArray, menu : LevelListMenu, new_alert : bool = true) -> void:
-	var alert := AlertMenu.new(menu.panel, new_alert)
+static func batch_import_file(paths : PackedStringArray, new_alert : bool = true) -> void:
+	var alert := AlertMenu.new(LevelListMenu.panel, new_alert)
 
 	# iterate, validate and transfer dropped filepaths
 	Log.say("Importing %s file(s)..." % [paths.size()])
@@ -55,14 +56,14 @@ static func batch_import_file(paths : PackedStringArray, menu : LevelListMenu, n
 				remove_file(existing_levels[match]["path"])
 			else:
 				alert.close()
-				alert = ConfirmationMenu.new(menu.panel, new_alert, false, 16).build("Imported map \"%s\" shares an ID with an existing map!\nReplace it?" % [level["path"].get_file()], "Replace")
+				alert = ConfirmationMenu.new(LevelListMenu.panel, new_alert, false, 16).build("Imported map \"%s\" shares an ID with an existing map!\nReplace it?" % [level["path"].get_file()], "Replace")
 				new_alert = false
 				if await alert.prompt():
 					temp_levels.append(level)
 					remove_file(existing_levels[match]["path"])
 				else:
 					Log.say("Imported map shares an ID with an existing map, import cancelled for file \"%s\" with ID \"%s\"" % [level["path"].get_file(), level["id"]])
-				alert = AlertMenu.new(menu.panel, false)
+				alert = AlertMenu.new(LevelListMenu.panel, false)
 		else:
 			temp_levels.append(level)
 	imported_levels = temp_levels
@@ -73,13 +74,13 @@ static func batch_import_file(paths : PackedStringArray, menu : LevelListMenu, n
 		if not level_data.is_empty():
 			var to = import_file(level_data["path"])
 			if to != "failed":
-				menu.map_imported(to)
+				LevelListMenu.custom_tab.map_imported(to)
 			result = to
 		results.append(result)
 
 	# refresh if any imports succeeded
 	if results.any(func(item) -> bool: return item != "failed"):
-		menu.refresh_levels()
+		LevelListMenu.custom_tab.refresh_levels()
 	var imports : int = results.size()
 
 	# create alert menu and display result message
@@ -164,27 +165,40 @@ static func _folder_zip_recursive(from : String, to : String, packer : ZIPPacker
 	return OK
 
 
+static func remove_list_check(path : String, hide_warnings : bool = false) -> bool:
+	if REMOVE_WHITELIST.filter(func(item) -> bool: return item in path).size() <= 0:
+		if not hide_warnings:
+			Log.error("File/folder \"%s\" requested for removal is not within whitelisted directories: %s" % [path.get_file(), REMOVE_WHITELIST])
+		return true
+	elif REMOVE_BLACKLIST.filter(func(item) -> bool: return item in path).size() > 0:
+		if not hide_warnings:
+			Log.error("File/folder \"%s\" requested for removal is within blacklisted files/folders: %s" % [path.get_file(), REMOVE_BLACKLIST])
+		return true
+	return false
+
+
 static func remove_file(path : String) -> void:
+	# check whitelist/blacklist before removal
+	if remove_list_check(path):
+		return
+	
 	# attempt to delete folder/file
 	var state : Error = DirAccess.get_open_error()
-	if REMOVE_WHITELIST.filter(func(item) -> bool: return item in path).size() > 0:
-		if FileAccess.file_exists(path) and path.get_file() != "active_ids.json":
-			Log.debug("Attempting to remove file \"%s\"" % [path.get_file()])
-			state = DirAccess.remove_absolute(path)
-		elif DirAccess.dir_exists_absolute(path):
-			Log.debug("Attempting to remove folder \"%s\"" % [path.get_file()])
-			state = _folder_delete_recursive(path)
-		else:
-			Log.warn("Selected file \"%s\" cannot be found or is not eligible for removal" % [path.get_file()])
-			state = Error.ERR_FILE_CANT_OPEN
-
-		# respond to return value
-		if state == OK:
-			Log.say("Removed file/folder \"%s\"" % [path.get_file()])
-		else:
-			Log.error("Failed to remove file/folder \"%s\": %s" % [path.get_file(), error_string(state)])
+	if FileAccess.file_exists(path):
+		Log.debug("Attempting to remove file \"%s\"" % [path.get_file()])
+		state = DirAccess.remove_absolute(path)
+	elif DirAccess.dir_exists_absolute(path):
+		Log.debug("Attempting to remove folder \"%s\"" % [path.get_file()])
+		state = _folder_delete_recursive(path)
 	else:
-		Log.error("File/folder \"%s\" requested for removal is not within whitelisted directories: %s" % [path.get_file(), REMOVE_WHITELIST])
+		Log.warn("Selected file \"%s\" cannot be found or is not eligible for removal" % [path.get_file()])
+		state = Error.ERR_FILE_CANT_OPEN
+
+	# respond to return value
+	if state == OK:
+		Log.say("Removed file/folder \"%s\"" % [path.get_file()])
+	else:
+		Log.error("Failed to remove file/folder \"%s\": %s" % [path.get_file(), error_string(state)])
 
 
 static func _folder_delete_recursive(path : String) -> Error:
