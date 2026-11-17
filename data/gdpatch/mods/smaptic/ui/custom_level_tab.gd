@@ -1,15 +1,18 @@
 extends VBoxContainer
 
 const Log := preload("../log.gd")
+const FileTools := preload("../tools/file_tools.gd")
+const LevelScanner := preload("../tools/level_scanner.gd")
+const AlertMenu := preload("../ui/alert_menu.gd")
 const LevelListMenu := preload("../ui/level_list_menu.gd")
 const LevelCard := preload("../ui/level_card.gd")
-const LevelScanner := preload("../tools/level_scanner.gd")
 
 const MAP_INDEX := "https://smaptic.github.io/MapIndex"
 
 var _level_list : VBoxContainer
 var _header : BoxContainer
 var _status : Label
+var _prev_dir : String
 var _restart_needed : bool = false
 var _loaded_packs : Dictionary = {}
 
@@ -17,6 +20,13 @@ signal restart_game
 
 
 func _init() -> void:
+	# add import button
+	var import_button = LevelListMenu.panel.add_action("Import", _import_level)
+	import_button.tooltip_text = "Import a custom map"
+	LevelListMenu.tab_bar.tab_changed.connect(func(tab) -> void:
+		import_button.visible = tab == 0
+	)
+
 	# load existing packs into memory
 	load_packs(LevelScanner.scan_level_directory())
 
@@ -111,9 +121,6 @@ func refresh_levels() -> void:
 	for level in level_data:
 		_level_list.add_child(LevelCard.new(level))
 
-	# artificial wait (disabled for now but might want in future)
-	# await get_tree().create_timer(0.125).timeout
-
 	# prompt restart if required
 	if _restart_needed == true:
 		add_child((func() -> HBoxContainer:
@@ -162,3 +169,52 @@ func load_packs(data : Array) -> void:
 		# overwriting "tried to seek before PCK file header" error bcs im pretty sure its not supposed to be called
 		Log.replace()
 	Log.say("Loaded %s map resource packs" % [loaded_count])
+
+
+# make sure this is implemented dont forget it
+func _import_level() -> void:
+	# dialog setup
+	var dialog := FileDialog.new()
+	LevelListMenu.panel.add_child(dialog)
+	dialog.transient = true
+	dialog.exclusive = true
+	dialog.use_native_dialog = true
+	dialog.access = FileDialog.ACCESS_FILESYSTEM
+	dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILES
+	dialog.mode_overrides_title = false
+	dialog.title = "Import Custom Map"
+	dialog.clear_filters()
+	dialog.filters = ["*.zip ; ZIP Archive"]
+	if _prev_dir:
+		dialog.current_dir = _prev_dir
+	else:
+		dialog.current_dir = OS.get_environment("USERPROFILE") if OS.has_feature("windows") else OS.get_environment("HOME")
+	var alert = AlertMenu.new(LevelListMenu.panel).build("File dialog is open in another window.")
+
+	# listeners for dialog signals
+	dialog.canceled.connect(func():
+		alert.message.text = "Map import cancelled."
+		_close_import_dialog(dialog)
+	)
+	dialog.file_selected.connect(func(path):
+		var paths = PackedStringArray([path])
+		FileTools.batch_import_file(paths, false)
+		_close_import_dialog(dialog)
+	)
+	dialog.files_selected.connect(func(paths):
+		FileTools.batch_import_file(paths, false)
+		_close_import_dialog(dialog)
+	)
+
+	# open dialog and retain exclusive focus until closed
+	dialog.popup_file_dialog()
+	alert.prompt()
+	alert.button_confirm.disabled = true
+	await dialog.tree_exited
+	alert.close()
+
+
+# emit close signal to allow alert to close and return focus to panel
+func _close_import_dialog(dialog : FileDialog):
+	_prev_dir = dialog.current_dir
+	dialog.queue_free()
