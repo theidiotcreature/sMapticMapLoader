@@ -63,4 +63,4 @@ static func open_levels() -> void:
 
 # allows other classes to check if panel is recieving input
 static func is_panel_active() -> bool:
-	return is_equal_approx(panel.modulate.a, 1.0) and tab_bar.focus_mode != FocusMode.FOCUS_NONE and _tab_bar.current_tab == 0
+	return is_equal_approx(panel.modulate.a, 1.0) and tab_bar.focus_mode != FocusMode.FOCUS_NONE and tab_bar.current_tab == 0

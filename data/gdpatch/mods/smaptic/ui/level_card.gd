@@ -3,11 +3,12 @@ extends PanelContainer
 const SnapticBase := preload("res://gdpatch/mods/snapticbase/mod.gd")
 const ClickButton := preload("res://levels/menu_screen_background/prefabs/click_button/click_button.gd")
 const Log := preload("../log.gd")
+const FocusTools := preload("../tools/focus_tools.gd")
+const LevelScanner := preload("../tools/level_scanner.gd")
 const LevelListMenu := preload("../ui/level_list_menu.gd")
 const ContextMenu := preload("../ui/context_menu.gd")
 const AlertMenu := preload("../ui/alert_menu.gd")
 const ConfirmationMenu := preload("../ui/confirmation_menu.gd")
-const LevelScanner := preload("../tools/level_scanner.gd")
 
 enum ContextActions {
 	BACK,
@@ -16,6 +17,8 @@ enum ContextActions {
 	CLEAR_SAVE,
 	DELETE
 }
+
+static var _focus_modes : Dictionary
 
 
 func _init(level : Dictionary) -> void:
@@ -182,8 +185,8 @@ static func _on_id_pressed(id : int, level : Dictionary) -> void:
 			container.add_child(file_info)
 
 			popup.open()
-			FocusTools.save_focus_modes(panel, _focus_modes)
-			panel.propagate_call("set_focus_mode", [FocusMode.FOCUS_NONE])
+			FocusTools.save_focus_modes(LevelListMenu.panel, _focus_modes)
+			LevelListMenu.panel.propagate_call("set_focus_mode", [FocusMode.FOCUS_NONE])
 			await popup.hidden
 			FocusTools.set_focus_modes(_focus_modes)
 
