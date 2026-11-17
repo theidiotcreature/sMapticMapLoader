@@ -7,12 +7,14 @@ const FocusTools := preload("../tools/focus_tools.gd")
 const THEME := "res://ui/_shared/themes/menu_screen_theme.tres"
 const BACK_GROUP := &"back_button"
 
+static var _focus_modes := {}
+
 var panel : Container
 var background : ColorRect
 var message : Label
 var header : Label
 var button_confirm : ClickButton
-var _focus_modes := {}
+var _base : Control
 
 signal confirmed(is_confirmed : bool)
 
@@ -20,6 +22,7 @@ func _init(base : Control, new_menu : bool = true, theme_basic : bool = false, f
 	set_anchors_preset(LayoutPreset.PRESET_FULL_RECT)
 	theme = load(THEME)
 	mouse_filter = MOUSE_FILTER_STOP
+	_base = base
 
 	# background
 	background = ColorRect.new()
@@ -99,10 +102,16 @@ func _init(base : Control, new_menu : bool = true, theme_basic : bool = false, f
 	button_container.add_child(button_confirm)
 
 	# disable base menu focus
-	if new_menu:
+	if _focus_modes.is_empty():
 		FocusTools.save_focus_modes(base, _focus_modes)
-		base.propagate_call("set_focus_mode", [FocusMode.FOCUS_NONE])
+	base.propagate_call("set_focus_mode", [FocusMode.FOCUS_NONE])
 	base.add_sibling(self)
+
+
+func _process(_delta : float) -> void:
+	if not _focus_modes.is_empty() and not is_queued_for_deletion():
+		FocusTools.save_focus_modes(_base, _focus_modes, true)
+		_base.propagate_call("set_focus_mode", [FocusMode.FOCUS_NONE])
 
 
 func build(text : String = "Notification", confirm : String = " OK ") -> AlertMenu:
@@ -124,10 +133,9 @@ func prompt(close : bool = true) -> bool:
 
 func close() -> void:
 	# restore base menu focus and free alert
-	FocusTools.set_focus_modes(_focus_modes)
-	button_confirm.focus_mode = FocusMode.FOCUS_NONE
 	get_viewport().gui_release_focus()
 	queue_free()
+	FocusTools.set_focus_modes(_focus_modes)
 	return
 
 
