@@ -3,6 +3,7 @@ extends PanelContainer
 const SnapticBase := preload("res://gdpatch/mods/snapticbase/mod.gd")
 const ClickButton := preload("res://levels/menu_screen_background/prefabs/click_button/click_button.gd")
 const Log := preload("../log.gd")
+const LevelListMenu := preload("../ui/level_list_menu.gd")
 const ContextMenu := preload("../ui/context_menu.gd")
 const AlertMenu := preload("../ui/alert_menu.gd")
 const ConfirmationMenu := preload("../ui/confirmation_menu.gd")
@@ -17,7 +18,7 @@ enum ContextActions {
 }
 
 
-func _init(menu : Control, level : Dictionary) -> void:
+func _init(level : Dictionary) -> void:
 	# main card container
 	size_flags_horizontal = SIZE_EXPAND_FILL
 	custom_minimum_size.y = 64
@@ -79,23 +80,23 @@ func _init(menu : Control, level : Dictionary) -> void:
 	if LevelScanner.get_id(level["id"]) in LevelLoader.LevelName.keys():
 		play_button.pressed.connect(func(): # play button transition effect
 			# i HATE create_tween it doesnt do what i want ever
-			menu.panel.create_tween().tween_property(menu.panel, "modulate", Color(1.0, 1.0, 1.0, 0.0), 0.25)
-			var loading := AlertMenu.new(menu.panel, true, true, 24, Vector2(300, 100)).build("Loading map...")
+			LevelListMenu.panel.create_tween().tween_property(LevelListMenu.panel, "modulate", Color(1.0, 1.0, 1.0, 0.0), 0.25)
+			var loading := AlertMenu.new(LevelListMenu.panel, true, true, 24, Vector2(300, 100)).build("Loading map...")
 			loading.button_confirm.visible = false
 			await AudioManager.play_sound_effect(SFX.Name.MENU_START).finished
 			Log.say("Attempting to load level \"%s\"" % [level["name"]])
 			loading.close()
-			menu.panel.close()
+			LevelListMenu.panel.close()
 			LevelLoader.load_level(LevelLoader.LevelName.get(LevelScanner.get_id(level["id"])))
 		)
 	else:
 		play_button.disabled = true
 		play_button.tooltip_text = "Level ID not registered, restart required"
-		menu.custom_tab._restart_needed = true
+		LevelListMenu.custom_tab._restart_needed = true
 	buttons.add_child(play_button)
 
 	var more_button := Button.new()
-	menu.panel.style_button(more_button)
+	LevelListMenu.panel.style_button(more_button)
 	more_button.text = " ⁝ "
 	more_button.size_flags_vertical = SIZE_SHRINK_CENTER
 	# i legitimately cant tell if this actually has a meaningful improvement on readability but oh well
@@ -103,12 +104,12 @@ func _init(menu : Control, level : Dictionary) -> void:
 	bold_font.base_font = more_button.get_theme_font("font")
 	bold_font.variation_embolden = 1.0
 	more_button.add_theme_font_override("font", bold_font)
-	more_button.pressed.connect(_create_context_menu.bind(menu, more_button, level))
+	more_button.pressed.connect(_create_context_menu.bind(more_button, level))
 	buttons.add_child(more_button)
 
 
 # i split this off from being a lamda for readability and lower memory usage
-static func _create_context_menu(menu : Control, more_button : Button, level : Dictionary) -> ContextMenu:
+static func _create_context_menu(more_button : Button, level : Dictionary) -> ContextMenu:
 	# init context menu
 	var context_menu := ContextMenu.new()
 	context_menu.add_item("Close", ContextActions.BACK)
@@ -117,7 +118,7 @@ static func _create_context_menu(menu : Control, more_button : Button, level : D
 	context_menu.add_item("More Info", ContextActions.INFO)
 	# context_menu.add_item("Clear Save", ContextActions.CLEAR_SAVE)
 	context_menu.add_item("Delete", ContextActions.DELETE)
-	menu.panel.add_child(context_menu)
+	LevelListMenu.panel.add_child(context_menu)
 	context_menu.open_at(more_button.get_global_position(), ContextActions.BACK)
 
 	# listen for selection and respond
@@ -157,12 +158,12 @@ static func _create_context_menu(menu : Control, more_button : Button, level : D
 				popup.open()
 
 			ContextActions.DELETE:
-				var confirm = ConfirmationMenu.new(menu.panel).build("Are you sure you want to delete this map?\n(Cannot be undone!)", "Delete")
+				var confirm = ConfirmationMenu.new(LevelListMenu.panel).build("Are you sure you want to delete this map?\n(Cannot be undone!)", "Delete")
 				if await confirm.prompt():
 					var state = DirAccess.remove_absolute(level["path"])
 					if state == OK:
 						Log.say("Successfully deleted map \"%s\"" % [level["path"].get_file()])
-						menu.custom_tab.refresh_levels()
+						LevelListMenu.custom_tab.refresh_levels()
 					else:
 						Log.error("Failed to delete map \"%s\": %s" % [level["path"].get_file(), error_string(state)])
 

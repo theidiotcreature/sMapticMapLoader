@@ -1,21 +1,22 @@
 extends VBoxContainer
 
 const Log := preload("../log.gd")
+const LevelListMenu := preload("../ui/level_list_menu.gd")
 const CustomLevelCard := preload("../ui/custom_level_card.gd")
 const LevelScanner := preload("../tools/level_scanner.gd")
 
 const MAP_INDEX := "https://smaptic.github.io/MapIndex"
 
 var _level_list : VBoxContainer
-var _base : Control
 var _header : BoxContainer
 var _status : Label
 var _restart_needed : bool = false
 var _loaded_packs : Dictionary = {}
 
+signal restart_game
 
-func _init(base : Control) -> void:
-	_base = base
+
+func _init() -> void:
 
 	# load existing packs into memory
 	load_packs(LevelScanner.scan_level_directory())
@@ -109,7 +110,7 @@ func refresh_levels() -> void:
 
 	# create card for each folder with level data
 	for level in level_data:
-		_level_list.add_child(CustomLevelCard.new(_base, level))
+		_level_list.add_child(CustomLevelCard.new(level))
 
 	# artificial wait (disabled for now but might want in future)
 	# await get_tree().create_timer(0.125).timeout
@@ -128,7 +129,7 @@ func refresh_levels() -> void:
 				var button := Button.new()
 				button.text = "Restart"
 				button.pressed.connect(func():
-					_base.emit_signal("restart_game")
+					emit_signal("restart_game")
 				)
 				return button
 			).call())

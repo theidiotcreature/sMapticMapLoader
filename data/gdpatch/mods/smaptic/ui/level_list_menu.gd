@@ -11,46 +11,38 @@ const VanillaLevelMenu := preload("../ui/vanilla_level_menu.gd")
 const LATEST := "https://github.com/theidiotcreature/sMapticMapLoader/releases/latest"
 const PANEL_SIZE := Vector2(600, 400)
 
-var panel : Panel
-var custom_tab : Control
-var vanilla_tab : Control
-var update : String = ""
-var _tab_bar : TabBar
-var _refresh_button : Button
-var _import_button : Button
-var _prev_dir : String
-var _boot : bool = true
-
-signal dialog_closed
-signal restart_game
+static var panel : Panel
+static var custom_tab : Control
+static var vanilla_tab : Control
+static var update : String = ""
+static var _tab_bar : TabBar
+static var _import_button : Button
+static var _prev_dir : String
+static var _boot : bool = true
 
 
-func open_levels() -> void:
-	# construct panel if it hasn't been yet
-	if !panel:
-		panel = SnapticBase.create_panel("Custom Maps", PANEL_SIZE)
-		custom_tab = CustomLevelMenu.new(self)
-		panel.content.add_child(custom_tab)
-		var vanilla_tab_container : Control = panel.add_tab("Vanilla Maps")
-		vanilla_tab = VanillaLevelMenu.new()
-		vanilla_tab_container.add_child(vanilla_tab)
-		_tab_bar = panel.content.get_parent().get_tab_bar()
-		_tab_bar.tab_changed.connect(func(tab):
-			AudioManager.play_sound_effect(SFX.Name.MENU_SELECT)
-			_refresh_button.visible = tab == 0
-			_import_button.visible = tab == 0
-		)
-		_tab_bar.tab_hovered.connect(func(tab): AudioManager.play_sound_effect(SFX.Name.MENU_HOVER))
-		panel.add_back()
+static func _static_init() -> void:
+	# construct panel
+	panel = SnapticBase.create_panel("Custom Maps", PANEL_SIZE)
+	custom_tab = CustomLevelMenu.new()
+	panel.content.add_child(custom_tab)
+	var vanilla_tab_container : Control = panel.add_tab("Vanilla Maps")
+	vanilla_tab = VanillaLevelMenu.new()
+	vanilla_tab_container.add_child(vanilla_tab)
+	_tab_bar = panel.content.get_parent().get_tab_bar()
+	_tab_bar.tab_changed.connect(func(tab):
+		AudioManager.play_sound_effect(SFX.Name.MENU_SELECT)
+		_import_button.visible = tab == 0
+	)
+	_tab_bar.tab_hovered.connect(func(tab): AudioManager.play_sound_effect(SFX.Name.MENU_HOVER))
+	panel.add_back()
 
-		# actions for panel footer
-		_import_button = panel.add_action("Import", _import_level)
-		_import_button.tooltip_text = "Import a custom map"
-		# refresh button is kinda useless ??? dunno if i want it or not
-		# _refresh_button = panel.add_action("Refresh", refresh_levels)
-		# _refresh_button.tooltip_text = "Refresh maps list"
-		_refresh_button = Button.new()
+	# actions for panel footer
+	_import_button = panel.add_action("Import", _import_level)
+	_import_button.tooltip_text = "Import a custom map"
 
+
+static func open_levels() -> void:
 	# refresh content and display panel
 	panel.open()
 
@@ -73,12 +65,12 @@ func open_levels() -> void:
 
 
 # allows other classes to check if panel is recieving input
-func is_panel_active() -> bool:
+static func is_panel_active() -> bool:
 	return is_equal_approx(panel.modulate.a, 1.0) and _tab_bar.focus_mode != FocusMode.FOCUS_NONE
 
 
 # make sure this is implemented dont forget it
-func _import_level() -> void:
+static func _import_level() -> void:
 	# dialog setup
 	var dialog := FileDialog.new()
 	panel.add_child(dialog)
@@ -104,11 +96,11 @@ func _import_level() -> void:
 	)
 	dialog.file_selected.connect(func(path):
 		var paths = PackedStringArray([path])
-		FileTools.batch_import_file(paths, self, false)
+		FileTools.batch_import_file(paths, false)
 		_close_import_dialog(dialog)
 	)
 	dialog.files_selected.connect(func(paths):
-		FileTools.batch_import_file(paths, self, false)
+		FileTools.batch_import_file(paths, false)
 		_close_import_dialog(dialog)
 	)
 
@@ -116,11 +108,11 @@ func _import_level() -> void:
 	dialog.popup_file_dialog()
 	alert.prompt()
 	alert.button_confirm.disabled = true
-	await dialog_closed
+	await dialog.tree_exited
 	alert.close()
 
 
 # emit close signal to allow alert to close and return focus to panel
-func _close_import_dialog(dialog : FileDialog):
+static func _close_import_dialog(dialog : FileDialog):
 	_prev_dir = dialog.current_dir
-	dialog_closed.emit()
+	dialog.queue_free()

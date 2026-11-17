@@ -13,8 +13,8 @@ static func file_size(path : String) -> int:
 	return FileAccess.open(path, FileAccess.READ).get_length()
 
 
-static func batch_import_file(paths : PackedStringArray, menu : LevelListMenu, new_alert : bool = true) -> void:
-	var alert := AlertMenu.new(menu.panel, new_alert)
+static func batch_import_file(paths : PackedStringArray, new_alert : bool = true) -> void:
+	var alert := AlertMenu.new(LevelListMenu.panel, new_alert)
 
 	# iterate, validate and transfer dropped filepaths
 	Log.say("Importing %s file(s)..." % [paths.size()])
@@ -51,14 +51,14 @@ static func batch_import_file(paths : PackedStringArray, menu : LevelListMenu, n
 		var match : int = existing_levels.map(func(item) -> String: return item["id"]).find(level["id"])
 		if match > -1:
 			alert.close()
-			alert = ConfirmationMenu.new(menu.panel, new_alert, false, 16).build("Imported map \"%s\" shares an ID with an existing map!\nReplace it?" % [level["path"].get_file()], "Replace")
+			alert = ConfirmationMenu.new(LevelListMenu.panel, new_alert, false, 16).build("Imported map \"%s\" shares an ID with an existing map!\nReplace it?" % [level["path"].get_file()], "Replace")
 			new_alert = false
 			if await alert.prompt():
 				temp_levels.append(level)
 				remove_file(existing_levels[match]["path"])
 			else:
 				Log.say("Imported map shares an ID with an existing map, import cancelled for file \"%s\" with ID \"%s\"" % [level["path"].get_file(), level["id"]])
-			alert = AlertMenu.new(menu.panel, false)
+			alert = AlertMenu.new(LevelListMenu.panel, false)
 		else:
 			temp_levels.append(level)
 	imported_levels = temp_levels
@@ -69,13 +69,13 @@ static func batch_import_file(paths : PackedStringArray, menu : LevelListMenu, n
 		if not level_data.is_empty():
 			var to = import_file(level_data["path"])
 			if to != "failed":
-				menu.map_imported(to)
+				LevelListMenu.custom_tab.map_imported(to)
 			result = to
 		results.append(result)
 
 	# refresh if any imports succeeded
 	if results.any(func(item) -> bool: return item != "failed"):
-		menu.custom_tab.refresh_levels()
+		LevelListMenu.custom_tab.refresh_levels()
 	var imports : int = results.size()
 
 	# create alert menu and display result message
