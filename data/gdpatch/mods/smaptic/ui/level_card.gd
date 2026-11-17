@@ -110,7 +110,7 @@ func _init(level : Dictionary) -> void:
 
 # i split this off from being a lamda for readability and lower memory usage
 static func _create_context_menu(more_button : Button, level : Dictionary) -> ContextMenu:
-	# init context menu
+	# init and open context menu
 	var context_menu := ContextMenu.new()
 	context_menu.add_item("Close", ContextActions.BACK)
 	# gonna implement pinning & save data clearing in a later release methinks
@@ -118,61 +118,62 @@ static func _create_context_menu(more_button : Button, level : Dictionary) -> Co
 	context_menu.add_item("More Info", ContextActions.INFO)
 	# context_menu.add_item("Clear Save", ContextActions.CLEAR_SAVE)
 	context_menu.add_item("Delete", ContextActions.DELETE)
+	context_menu.id_pressed.connect(_on_id_pressed.bind(level))
+
 	LevelListMenu.panel.add_child(context_menu)
 	context_menu.open_at(more_button.get_global_position(), ContextActions.BACK)
-
-	# listen for selection and respond
-	context_menu.id_pressed.connect(func(id):
-		Log.debug("%s action triggered for level \"%s\"" % [ContextActions.keys()[id], str(level["id"])])
-		match id:
-			ContextActions.BACK:
-				pass
-
-			ContextActions.INFO:
-				var popup = SnapticBase.create_panel("Details", Vector2(500, 350))
-				popup.add_back()
-
-				var info = Label.new()
-				# scene path uses a non-breaking space to keep as much of the path on one line as possible
-				info.text = "Name: %s\nID: %s\nVersion: %s\nAuthors: %s\nDescription: %s\nScene path: %s\nFile name: %s\nFile size: %s" % [
-					str(level.get("name", "Unnamed level")),
-					str(level["id"]),
-					str(level.get("version", "Unknown")),
-					format_authors(level),
-					str(level.get("description", "No description provided.")),
-					str(level["scene"]),
-					str(level["path"]).get_file(),
-					format_bytes(FileAccess.open(level["path"], FileAccess.READ).get_length())
-				]
-				info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-				info.size_flags_vertical = SIZE_EXPAND_FILL
-				info.size_flags_horizontal = SIZE_EXPAND_FILL
-				info.add_theme_font_size_override("font_size", 18)
-				popup.content.add_child(info)
-
-				var level_icon := _create_level_icon(level, 96, 3)
-				level_icon.size_flags_horizontal = SIZE_SHRINK_END
-				level_icon.size_flags_vertical = SIZE_SHRINK_BEGIN
-				popup.content.add_child(level_icon)
-
-				popup.open()
-
-			ContextActions.DELETE:
-				var confirm = ConfirmationMenu.new(LevelListMenu.panel).build("Are you sure you want to delete this map?\n(Cannot be undone!)", "Delete")
-				if await confirm.prompt():
-					var state = DirAccess.remove_absolute(level["path"])
-					if state == OK:
-						Log.say("Successfully deleted map \"%s\"" % [level["path"].get_file()])
-						LevelListMenu.custom_tab.refresh_levels()
-					else:
-						Log.error("Failed to delete map \"%s\": %s" % [level["path"].get_file(), error_string(state)])
-
-			# catch all if action isnt defined (if this happens i screwed up)
-			_:
-				Log.warn("Unimplemented action id %s \"%s\"" % [id, ContextActions.keys()[id]])
-	)
-
 	return context_menu
+
+
+static func _on_id_pressed(id : int, level : Dictionary) -> void:
+	# listen for selection and respond
+	Log.debug("%s action triggered for level \"%s\"" % [ContextActions.keys()[id], str(level["id"])])
+	match id:
+		ContextActions.BACK:
+			pass
+
+		ContextActions.INFO:
+			var popup = SnapticBase.create_panel("Details", Vector2(500, 350))
+			popup.add_back()
+
+			var info = Label.new()
+			# scene path uses a non-breaking space to keep as much of the path on one line as possible
+			info.text = "Name: %s\nID: %s\nVersion: %s\nAuthors: %s\nDescription: %s\nScene path: %s\nFile name: %s\nFile size: %s" % [
+				str(level.get("name", "Unnamed level")),
+				str(level["id"]),
+				str(level.get("version", "Unknown")),
+				format_authors(level),
+				str(level.get("description", "No description provided.")),
+				str(level["scene"]),
+				str(level["path"]).get_file(),
+				format_bytes(FileAccess.open(level["path"], FileAccess.READ).get_length())
+			]
+			info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			info.size_flags_vertical = SIZE_EXPAND_FILL
+			info.size_flags_horizontal = SIZE_EXPAND_FILL
+			info.add_theme_font_size_override("font_size", 18)
+			popup.content.add_child(info)
+
+			var level_icon := _create_level_icon(level, 96, 3)
+			level_icon.size_flags_horizontal = SIZE_SHRINK_END
+			level_icon.size_flags_vertical = SIZE_SHRINK_BEGIN
+			popup.content.add_child(level_icon)
+
+			popup.open()
+
+		ContextActions.DELETE:
+			var confirm = ConfirmationMenu.new(LevelListMenu.panel).build("Are you sure you want to delete this map?\n(Cannot be undone!)", "Delete")
+			if await confirm.prompt():
+				var state = DirAccess.remove_absolute(level["path"])
+				if state == OK:
+					Log.say("Successfully deleted map \"%s\"" % [level["path"].get_file()])
+					LevelListMenu.custom_tab.refresh_levels()
+				else:
+					Log.error("Failed to delete map \"%s\": %s" % [level["path"].get_file(), error_string(state)])
+
+		# catch all if action isnt defined (if this happens i screwed up)
+		_:
+			Log.warn("Unimplemented action id %s \"%s\"" % [id, ContextActions.keys()[id]])
 
 
 static func _create_level_icon(level : Dictionary, icon_size : float, border : int = 2) -> Control:
