@@ -7,14 +7,13 @@ const FocusTools := preload("../tools/focus_tools.gd")
 const THEME := "res://ui/_shared/themes/menu_screen_theme.tres"
 const BACK_GROUP := &"back_button"
 
-static var _focus_modes := {}
-
 var panel : Container
 var background : ColorRect
 var message : Label
 var header : Label
 var button_confirm : ClickButton
 var _base : Control
+var _focus_modes : Dictionary
 
 signal confirmed(is_confirmed : bool)
 
