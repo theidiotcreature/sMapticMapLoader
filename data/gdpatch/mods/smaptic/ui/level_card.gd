@@ -3,8 +3,10 @@ extends PanelContainer
 const SnapticBase := preload("res://gdpatch/mods/snapticbase/mod.gd")
 const ClickButton := preload("res://levels/menu_screen_background/prefabs/click_button/click_button.gd")
 const Log := preload("../log.gd")
+const FileTools := preload("../tools/file_tools.gd")
 const FocusTools := preload("../tools/focus_tools.gd")
 const LevelScanner := preload("../tools/level_scanner.gd")
+const Settings := preload("../ui/settings.gd")
 const LevelListMenu := preload("../ui/level_list_menu.gd")
 const ContextMenu := preload("../ui/context_menu.gd")
 const AlertMenu := preload("../ui/alert_menu.gd")
@@ -191,14 +193,13 @@ static func _on_id_pressed(id : int, level : Dictionary) -> void:
 			FocusTools.set_focus_modes(_focus_modes)
 
 		ContextActions.DELETE:
-			var confirm = ConfirmationMenu.new(LevelListMenu.panel).build("Are you sure you want to delete this map?\n(Cannot be undone!)", "Delete")
-			if await confirm.prompt():
-				var state = DirAccess.remove_absolute(level["path"])
-				if state == OK:
-					Log.say("Successfully deleted map \"%s\"" % [level["path"].get_file()])
-					LevelListMenu.custom_tab.refresh_levels()
-				else:
-					Log.error("Failed to delete map \"%s\": %s" % [level["path"].get_file(), error_string(state)])
+			if Settings.store.get_bool("ignore_modify"):
+				FileTools.remove_file(level["path"])
+			else:
+				var confirm = ConfirmationMenu.new(LevelListMenu.panel).build("Are you sure you want to delete this map?\n(Cannot be undone!)", "Delete")
+				if await confirm.prompt():
+					FileTools.remove_file(level["path"])
+			LevelListMenu.custom_tab.refresh_levels()
 
 		# catch all if action isnt defined (if this happens i screwed up)
 		_:
