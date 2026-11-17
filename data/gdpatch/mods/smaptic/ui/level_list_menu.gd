@@ -5,8 +5,8 @@ const FileTools := preload("../tools/file_tools.gd")
 const Log := preload("../log.gd")
 const AlertMenu := preload("../ui/alert_menu.gd")
 const ConfirmationMenu := preload("../ui/confirmation_menu.gd")
-const CustomLevelMenu := preload("../ui/custom_level_menu.gd")
-const VanillaLevelMenu := preload("../ui/vanilla_level_menu.gd")
+const CustomLevelTab := preload("../ui/custom_level_tab.gd")
+const VanillaLevelTab := preload("../ui/vanilla_level_tab.gd")
 
 const LATEST := "https://github.com/theidiotcreature/sMapticMapLoader/releases/latest"
 const PANEL_SIZE := Vector2(600, 400)
@@ -14,9 +14,8 @@ const PANEL_SIZE := Vector2(600, 400)
 static var panel : Panel
 static var custom_tab : Control
 static var vanilla_tab : Control
+static var tab_bar : TabBar
 static var update : String = ""
-static var _tab_bar : TabBar
-static var _import_button : Button
 static var _prev_dir : String
 static var _boot : bool = true
 
@@ -24,22 +23,21 @@ static var _boot : bool = true
 static func _static_init() -> void:
 	# construct panel
 	panel = SnapticBase.create_panel("Custom Maps", PANEL_SIZE)
-	custom_tab = CustomLevelMenu.new()
+	panel.add_back()
+	custom_tab = CustomLevelTab.new()
 	panel.content.add_child(custom_tab)
 	var vanilla_tab_container : Control = panel.add_tab("Vanilla Maps")
-	vanilla_tab = VanillaLevelMenu.new()
+	vanilla_tab = VanillaLevelTab.new()
 	vanilla_tab_container.add_child(vanilla_tab)
-	_tab_bar = panel.content.get_parent().get_tab_bar()
-	_tab_bar.tab_changed.connect(func(tab):
+	tab_bar = panel.content.get_parent().get_tab_bar()
+	tab_bar.tab_hovered.connect(func(tab): AudioManager.play_sound_effect(SFX.Name.MENU_HOVER))
+	
+	var import_button = panel.add_action("Import", _import_level)
+	import_button.tooltip_text = "Import a custom map"
+	tab_bar.tab_changed.connect(func(tab):
 		AudioManager.play_sound_effect(SFX.Name.MENU_SELECT)
-		_import_button.visible = tab == 0
+		import_button.visible = tab == 0
 	)
-	_tab_bar.tab_hovered.connect(func(tab): AudioManager.play_sound_effect(SFX.Name.MENU_HOVER))
-	panel.add_back()
-
-	# actions for panel footer
-	_import_button = panel.add_action("Import", _import_level)
-	_import_button.tooltip_text = "Import a custom map"
 
 
 static func open_levels() -> void:
@@ -66,7 +64,7 @@ static func open_levels() -> void:
 
 # allows other classes to check if panel is recieving input
 static func is_panel_active() -> bool:
-	return is_equal_approx(panel.modulate.a, 1.0) and _tab_bar.focus_mode != FocusMode.FOCUS_NONE
+	return is_equal_approx(panel.modulate.a, 1.0) and tab_bar.focus_mode != FocusMode.FOCUS_NONE
 
 
 # make sure this is implemented dont forget it
