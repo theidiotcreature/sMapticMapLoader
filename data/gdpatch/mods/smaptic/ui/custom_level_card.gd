@@ -91,7 +91,7 @@ func _init(menu : Control, level : Dictionary) -> void:
 	else:
 		play_button.disabled = true
 		play_button.tooltip_text = "Level ID not registered, restart required"
-		menu._restart_needed = true
+		menu.custom_tab._restart_needed = true
 	buttons.add_child(play_button)
 
 	var more_button := Button.new()
@@ -115,6 +115,7 @@ static func _create_context_menu(menu : Control, more_button : Button, level : D
 	# gonna implement pinning & save data clearing in a later release methinks
 	# context_menu.add_item("Pin/Unpin", ContextActions.PIN)
 	context_menu.add_item("More Info", ContextActions.INFO)
+	# context_menu.add_item("Clear Save", ContextActions.CLEAR_SAVE)
 	context_menu.add_item("Delete", ContextActions.DELETE)
 	menu.panel.add_child(context_menu)
 	context_menu.open_at(more_button.get_global_position(), ContextActions.BACK)
@@ -161,7 +162,7 @@ static func _create_context_menu(menu : Control, more_button : Button, level : D
 					var state = DirAccess.remove_absolute(level["path"])
 					if state == OK:
 						Log.say("Successfully deleted map \"%s\"" % [level["path"].get_file()])
-						menu.refresh_levels()
+						menu.custom_tab.refresh_levels()
 					else:
 						Log.error("Failed to delete map \"%s\": %s" % [level["path"].get_file(), error_string(state)])
 

@@ -75,7 +75,7 @@ static func batch_import_file(paths : PackedStringArray, menu : LevelListMenu, n
 
 	# refresh if any imports succeeded
 	if results.any(func(item) -> bool: return item != "failed"):
-		menu.refresh_levels()
+		menu.custom_tab.refresh_levels()
 	var imports : int = results.size()
 
 	# create alert menu and display result message
