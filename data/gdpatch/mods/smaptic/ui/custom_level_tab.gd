@@ -77,7 +77,6 @@ static func _make_separator_stylebox() -> StyleBoxLine:
 	var line := StyleBoxLine.new()
 	line.color = Color.WHITE
 	line.thickness = 2
-	line.horizontal = true
 	return line
 
 

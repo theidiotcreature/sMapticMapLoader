@@ -10,7 +10,7 @@ const VanillaLevelTab := preload("../ui/vanilla_level_tab.gd")
 const LATEST := "https://github.com/theidiotcreature/sMapticMapLoader/releases/latest"
 const PANEL_SIZE := Vector2(600, 400)
 
-static var panel : Panel
+static var panel : Control
 static var custom_tab : Control
 static var vanilla_tab : Control
 static var tab_bar : TabBar
