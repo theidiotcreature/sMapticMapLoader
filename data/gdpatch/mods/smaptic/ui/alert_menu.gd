@@ -69,7 +69,7 @@ func _init(base : Control, new_menu : bool = true, theme_basic : bool = false, f
 	header.visible = false
 	header.size_flags_vertical = SIZE_SHRINK_BEGIN
 	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	header.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
 	header.add_theme_font_size_override("font_size", 22)
 	var header_font := FontVariation.new()
 	header_font.base_font = header.get_theme_font("font")
@@ -117,7 +117,6 @@ func build(text : String = "Notification", confirm : String = " OK ") -> AlertMe
 	# extra initalisation and text setting
 	message.text = text
 	button_confirm.text = confirm
-	get_parent().style_button(button_confirm)
 	z_index = 4
 	return self
 
