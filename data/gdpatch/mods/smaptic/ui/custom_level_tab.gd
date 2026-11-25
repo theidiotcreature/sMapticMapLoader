@@ -155,7 +155,7 @@ func load_packs(data : Array) -> void:
 	var loaded_count := 0
 	for level in data:
 		var path = level["path"]
-		if _loaded_packs[path]:
+		if _loaded_packs.has(path) and _loaded_packs[path]:
 			continue
 		if path.is_empty() or not FileAccess.file_exists(path):
 			Log.warn("Skipping unavailable map resource pack \"%s\"" % [path])
